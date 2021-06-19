@@ -42,6 +42,7 @@ class CarState(CarStateBase):
     self.steer_wind_down = Params().get_bool("SteerWindDown")
     self.cruise_gap = 4
     self.mdps_error_cnt = 0
+
   def update(self, cp, cp2, cp_cam):
     cp_mdps = cp2 if self.CP.mdpsBus == 1 else cp
     cp_sas = cp2 if self.CP.sasBus else cp
@@ -115,6 +116,8 @@ class CarState(CarStateBase):
     #ret.brakeHold = cp.vl["ESP11"]['AVH_STAT'] == 1
     ret.brakeHold = cp.vl["TCS15"]['AVH_LAMP'] == 2 # 0 OFF, 1 ERROR, 2 ACTIVE, 3 READY
     self.brakeHold = ret.brakeHold
+
+    ret.autoHold = cp.vl["ESP11"]['AVH_STAT']    
 
     self.cruise_main_button = cp.vl["CLU11"]["CF_Clu_CruiseSwMain"]
     self.cruise_buttons = cp.vl["CLU11"]["CF_Clu_CruiseSwState"]

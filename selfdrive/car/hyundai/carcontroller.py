@@ -151,6 +151,11 @@ class CarController():
     self.yRel = 0
     self.vRel = 0
 
+    self.anglesteer_desire = 0.0
+    self.angle_range = [5, 50]
+    self.angle_steerMax_range = [int(self.params.get("SteerMaxBaseAdj", encoding="utf8")), CarControllerParams.STEER_MAX]
+    self.angle_steerDeltaUp_range = [int(self.params.get("SteerDeltaUpBaseAdj", encoding="utf8")), CarControllerParams.STEER_DELTA_UP]
+    self.angle_steerDeltaDown_range = [int(self.params.get("SteerDeltaDownBaseAdj", encoding="utf8")), CarControllerParams.STEER_DELTA_DOWN]
     self.steerMax_base = int(self.params.get("SteerMaxBaseAdj", encoding="utf8"))
     self.steerDeltaUp_base = int(self.params.get("SteerDeltaUpBaseAdj", encoding="utf8"))
     self.steerDeltaDown_base = int(self.params.get("SteerDeltaDownBaseAdj", encoding="utf8"))
@@ -192,9 +197,6 @@ class CarController():
 
     param = self.p
 
-    #self.model_speed = 255 - self.SC.calc_va(sm, CS.out.vEgo)
-    #atom model_speed
-    #self.model_speed = self.SC.cal_model_speed(sm, CS.out.vEgo)
     if frame % 10 == 0:
       self.curve_speed = self.SC.cal_curve_speed(sm, CS.out.vEgo)
     
@@ -211,14 +213,16 @@ class CarController():
     #Hoya
     self.model_speed = interp(abs(lateral_plan.vCurvature), [0.0, 0.0002, 0.00074, 0.0025, 0.008, 0.02], [255, 255, 130, 90, 60, 20])
 
+    self.anglesteer_desire = lateral_plan.steerAngleDesireDeg  
+
     if CS.out.vEgo > 8:
       if self.variable_steer_max:
-        self.steerMax = interp(int(abs(self.model_speed)), self.model_speed_range, self.steerMax_range)
+        self.steerMax = interp(int(abs(self.anglesteer_desire)), self.angle_range, self.angle_steerMax_range)
       else:
         self.steerMax = self.steerMax_base
       if self.variable_steer_delta:
-        self.steerDeltaUp = interp(int(abs(self.model_speed)), self.model_speed_range, self.steerDeltaUp_range)
-        self.steerDeltaDown = interp(int(abs(self.model_speed)), self.model_speed_range, self.steerDeltaDown_range)
+        self.steerDeltaUp = interp(int(abs(self.anglesteer_desire)), self.angle_range, self.angle_steerDeltaUp_range)
+        self.steerDeltaDown = interp(int(abs(self.anglesteer_desire)), self.angle_range, self.angle_steerDeltaDown_range)
       else:
         self.steerDeltaUp = self.steerDeltaUp_base
         self.steerDeltaDown = self.steerDeltaDown_base
@@ -379,7 +383,7 @@ class CarController():
       self.vdiff = 0.
       self.resumebuttoncnt = 0
 
-    str_log1 = 'M/C={:03.0f}/{:03.0f}  TQ={:03.0f}  R={:03.0f}  ST={:03.0f}/{:01.0f}/{:01.0f}  G={:01.0f}  C={:01.0f}/{:01.0f}'.format(abs(self.model_speed), self.curve_speed, abs(new_steer), self.timer1.sampleTime(), self.steerMax, self.steerDeltaUp, self.steerDeltaDown, CS.out.cruiseGapSet, int(is_sc_run), setspd_delta)
+    str_log1 = 'CV={:03.0f} TQ={:03.0f} R={:03.0f} ST={:03.0f}/{:01.0f}/{:01.0f} G={:01.0f} C={:01.0f}/{:01.0f}'.format(abs(self.curve_speed), abs(new_steer), self.timer1.sampleTime(), self.steerMax, self.steerDeltaUp, self.steerDeltaDown, CS.out.cruiseGapSet, int(is_sc_run), setspd_delta)
 
     trace1.printf1('{}  {}'.format(str_log1, self.str_log2))
 
