@@ -82,7 +82,7 @@ typedef enum UIStatus {
   STATUS_CRUISE,
 } UIStatus;
 
-static std::map<UIStatus, NVGcolor> bg_colors = {
+const QColor bg_colors [] = {
   {STATUS_DISENGAGED, nvgRGBA(0x17, 0x33, 0x49, 0xc8)},
   {STATUS_ENGAGED, nvgRGBA(0x17, 0x86, 0x44, 0xf1)},
   {STATUS_WARNING, nvgRGBA(0xDA, 0x6F, 0x25, 0xf1)},
