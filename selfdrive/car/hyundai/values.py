@@ -7,9 +7,10 @@ Ecu = car.CarParams.Ecu
 
 # Steer torque limits
 class CarControllerParams:
-  STEER_MAX = 384   # 384 is the max, 255 is stock
-  STEER_DELTA_UP = 3 
-  STEER_DELTA_DOWN = 5 
+  params = Params()
+  STEER_MAX = int(params.get("SteerMaxAdj", encoding="utf8"))   # default 384
+  STEER_DELTA_UP = int(params.get("SteerDeltaUpAdj", encoding="utf8"))
+  STEER_DELTA_DOWN = int(params.get("SteerDeltaDownAdj", encoding="utf8"))
   STEER_DRIVER_ALLOWANCE = 50
   STEER_DRIVER_MULTIPLIER = 2
   STEER_DRIVER_FACTOR = 1
@@ -548,11 +549,21 @@ if Params().get_bool("FingerprintTwoSet"):
        ],
     },
     CAR.K7: {
-      (Ecu.eps, 0x7d4, None): [b'\xf1\000YG  MDPS C 1.00 1.00 99800-F6563 4YGAC100',],
-      (Ecu.fwdCamera, 0x7c4, None): [b'\xf1\000IG MFC  1.00 1.00 95740-F9200 180915',],
-      (Ecu.fwdRadar, 0x7d0, None): [ b'\xf1\x00YG__ SCC F_CUP   1.01 1.02 96400-F6000     \xf1\xa01.01',],
-    },
-  }
+    (Ecu.eps, 0x7d4, None): [
+      b'\xf1\000YG  MDPS C 1.00 1.00 99800F6563\000 4YGAC100',
+      b'\xf1\000YG  MDPS C 1.00 1.00 E0000F6563\000 4YGSC100',
+      b'\xf1\000YG  MDPS C 1.01 99500F6563\000 4YGDC103', 
+      b'\xf1\000YG  MDPS C 1.00 1.01 56310F6350\000 4YG7C101',
+    ],
+    (Ecu.fwdCamera, 0x7c4, None): [
+      b'\xf1\000IG MFC  1.00 1.00 95740F9200 180915',
+      b'\xf1\000YG MFC  1.00 1.01 95740F6100 170717',
+      b'\xf1\000YG MFC  1.00 1.03 95740F9200 190605',
+    ],
+    (Ecu.fwdRadar, 0x7d0, None): [ b'\xf1\x00YG__ SCC F_CUP   1.01 1.02 96400F6000     \xf1\xa01.01',],
+    (Ecu.esp, 0x7d1, None): [b'\xf1\x8758920-F6230\xf1\000NC MGH \t 101\031\t\005 58920F6230\xf1\xa01.01',],
+  },
+}
 
 CHECKSUM = {
   "crc8": [CAR.SANTA_FE, CAR.SONATA, CAR.PALISADE, CAR.SONATA_HEV, CAR.SELTOS, CAR.AVANTE, CAR.SOUL_EV],
